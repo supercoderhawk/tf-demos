@@ -27,6 +27,7 @@ import numpy as np
 # from six.moves import urllib
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
+import sys
 
 # Step 1: Download the data.
 url = 'http://mattmahoney.net/dc/'
@@ -50,12 +51,15 @@ words = read_data(filename)
 print('Data size', len(words))
 
 # Step 2: Build the dictionary and replace rare words with UNK token.
-# 定义
+# 第二步：创建词汇表并将罕见词替换为`UNK`
+# 定义词汇表大小，词汇表由出现次数最多的前`vocabulary_size-1`个单词和`UNK`组成
 vocabulary_size = 50000
 
 
 def build_dataset(words, vocabulary_size):
+  # 创建二维数组表示词汇数量，第一列为词，第二列为数量，第一项为罕见词数量，其初始值为-1
   count = [['UNK', -1]]
+  # 统计出现次数最多的前`vocabulary_size-1`个单词及其次数并加入上面的数组中
   count.extend(collections.Counter(words).most_common(vocabulary_size - 1))
   dictionary = dict()
   for word, _ in count:
@@ -82,6 +86,7 @@ data_index = 0
 
 
 # Step 3: Function to generate a training batch for the skip-gram model.
+# 第三部：产生skip-gram模型训练用的数据
 def generate_batch(batch_size, num_skips, skip_window):
   global data_index
   assert batch_size % num_skips == 0
@@ -108,13 +113,15 @@ def generate_batch(batch_size, num_skips, skip_window):
   data_index = (data_index + len(data) - span) % len(data)
   return batch, labels
 
-batch, labels = generate_batch(batch_size=8, num_skips=2, skip_window=1)
+batch, labels = generate_batch(batch_size=8, num_skips=1, skip_window=1)
 for i in range(8):
   print(batch[i], reverse_dictionary[batch[i]],
         '->', labels[i, 0], reverse_dictionary[labels[i, 0]])
+print(batch,labels)
+sys.exit(0)
 
 # Step 4: Build and train a skip-gram model.
-
+# 第四步：创建并训练一个skip-gram模型
 batch_size = 128
 embedding_size = 128  # Dimension of the embedding vector.
 skip_window = 1       # How many words to consider left and right.
@@ -176,6 +183,7 @@ with graph.as_default():
   init = tf.global_variables_initializer()
 
 # Step 5: Begin training.
+# 第五步：开始训练
 num_steps = 100001
 
 with tf.Session(graph=graph) as session:
