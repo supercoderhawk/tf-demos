@@ -13,10 +13,6 @@
 # limitations under the License.
 # ==============================================================================
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import collections
 import math
 import os
@@ -192,7 +188,7 @@ with tf.Session(graph=graph) as session:
   print("Initialized")
 
   average_loss = 0
-  for step in xrange(num_steps):
+  for step in range(num_steps):
     batch_inputs, batch_labels = generate_batch(
         batch_size, num_skips, skip_window)
     feed_dict = {train_inputs: batch_inputs, train_labels: batch_labels}

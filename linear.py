@@ -4,20 +4,20 @@ import tensorflow as tf
 
 def linear():
   # Model parameters
-  W = tf.Variable([.3], tf.float32)
-  b = tf.Variable([-.3], tf.float32)
+  W = tf.Variable([[.3,.3],[.3,.3]], tf.float32)
+  b = tf.Variable([[-.3,-.3,-.3,-.3],[-.3,-.3,-.3,-.3]], tf.float32)
   # Model input and output
-  x = tf.placeholder(tf.float32)
-  linear_model = W * x + b
-  y = tf.placeholder(tf.float32)
+  x = tf.placeholder(tf.float32,shape=[2,4])
+  linear_model = tf.matmul(W,x) + b
+  y = tf.placeholder(tf.float32,shape=[2,4])
   # loss
   loss = tf.reduce_sum(tf.square(linear_model - y))  # sum of the squares
   # optimizer
-  optimizer = tf.train.GradientDescentOptimizer(0.01)
+  optimizer = tf.train.GradientDescentOptimizer(0.1)
   train = optimizer.minimize(loss)
   # training data
-  x_train = [1, 2, 3, 4]
-  y_train = [0, -1, -2, -3]
+  x_train = [[1, 2, 3, 4],[5,6,7,8]]
+  y_train = [[0, -1, -2, -3],[-5,-6,-7,-8]]
   # training loop
   init = tf.global_variables_initializer()
   sess = tf.Session()
@@ -27,7 +27,7 @@ def linear():
 
   # evaluate training accuracy
   curr_W, curr_b, curr_loss = sess.run([W, b, loss], {x: x_train, y: y_train})
-  file_writer = tf.summary.FileWriter('logs.log', sess.graph)
+  #file_writer = tf.summary.FileWriter('logs.log', sess.graph)
   print("W: %s b: %s loss: %s" % (curr_W, curr_b, curr_loss))
 
 
