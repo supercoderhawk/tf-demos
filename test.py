@@ -228,17 +228,21 @@ def test_scatter_mul():
     print(d.eval())
 
 def test_grad():
-  var0 = tf.Variable([1.0, 2.0], dtype=tf.float32)
-  var1 = tf.Variable([3.0, 4.0], dtype=tf.float32)
-  grads0 = tf.constant([0.1, 0.1], dtype=tf.float32)
-  grads1 = tf.constant([0.01, 0.01], dtype=tf.float32)
+  var0 = tf.Variable([1.0, 2.0], dtype=tf.float64)
+  var1 = tf.Variable([3.0, 4.0], dtype=tf.float64)
+  grads0 = tf.constant([0.1, 0.1], dtype=tf.float64)
+  grads1 = tf.constant([0.01, 0.01], dtype=tf.float64)
   f = tf.add(var0,var1)
-  opti = tf.train.GradientDescentOptimizer(3.0)
-  sgd_op = opti.apply_gradients(zip([grads0, grads1], [var0, var1]))
-  sgd_op2 = opti.apply_gradients(f)
+  loss = tf.reduce_sum(tf.subtract(var0[0],grads0))
+  opti = tf.train.GradientDescentOptimizer(0.2)
+  grad = tf.gradients(var0,grads0)
+  #sgd_op = opti.apply_gradients(zip([grads0, grads1], [var0, var1]))
+  #sgd_op2 = opti.apply_gradients(f)
   with tf.Session() as sess:
     tf.global_variables_initializer().run()
-    sgd_op2.run()
+    #sgd_op2.run()
+    print(tf.split(var0,2))
+    sess.run(opti.minimize(loss))
     #print(list(zip([grads0, grads1], [var0, var1])))
     print(var0.eval())
 
@@ -264,19 +268,44 @@ def test_lstm():
   with tf.Session() as sess:
     #val, state = tf.nn.dynamic_rnn(lstm, x)
     #cell,_ = tf.contrib.rnn.MultiRNNCell([lstm] * 1)
-    tf.global_variables_initializer().run()
+    with tf.variable_scope("LSTM") as vs:
+      tf.global_variables_initializer().run()
     #print(lstm.state_size)
-    output, out_state = tf.nn.dynamic_rnn(lstm, x,initial_state=tf.contrib.rnn.LSTMStateTuple(rand,rand))
+      output, out_state = tf.nn.dynamic_rnn(lstm, x,initial_state=tf.contrib.rnn.LSTMStateTuple(rand,rand))
+      lstm_variables = [v for v in tf.all_variables() if v.name.startswith(vs.name)]
+      print(len(lstm_variables))
+      lstm_variables = tf.get_collection(tf.GraphKeys.VARIABLES, scope=vs.name)
+      print(len(lstm_variables))
     #output, out_state = tf.contrib.rnn.static_rnn(lstm, [x],dtype=tf.float32)
     #output,state = lstm.(x,state)
     #res = sess.run(output)
     #res2 = sess.run(out_state)
     #output, out_state = tf.nn.dynamic_rnn(lstm, x, dtype=tf.float32,initial_state=res2)
-    tf.global_variables_initializer().run()
-    print(sess.run(output))
+      tf.global_variables_initializer().run()
+      #print(sess.run(output))
     #print(sess.run(out_state))
     #print(res2)
     #print(output)
+
+def test_max():
+  res = tf.maximum(0,np.zeros([2,2]))
+  print(res)
+
+def test_where():
+  x = np.array([1,2,3,4,5,5,5,5])
+  y = np.array([1,2,3,4,5,6,7,8])
+  res = tf.where(x==y,x,y)
+  with tf.Session() as sess:
+    print(sess.run(res))
+
+def test_regu():
+  x = tf.Variable(np.ones([10,10]),dtype=tf.float32)
+  with tf.Session() as sess:
+    tf.global_variables_initializer().run()
+    regu = tf.contrib.layers.apply_regularization(tf.contrib.layers.l2_regularizer(0.1),[x])
+    reg = tf.nn.l2_loss(x)
+    print(sess.run(reg))
+    print(x.eval())
 
 if __name__ == '__main__':
   # mul_test()
@@ -291,8 +320,11 @@ if __name__ == '__main__':
   # test_test()
   # test_sparse()
   # test_scatter_mul()
-  #test_grad()
+  test_grad()
   #test_regularize()
-  test_lstm()
+  #test_lstm()
+  #test_max()
+  #test_where()
+  #test_regu()
 
 
