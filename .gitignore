@@ -1,5 +1,7 @@
 .idea/
 text8.zip
+corpus
+tmp
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
