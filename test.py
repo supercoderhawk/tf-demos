@@ -304,8 +304,30 @@ def test_regu():
     tf.global_variables_initializer().run()
     regu = tf.contrib.layers.apply_regularization(tf.contrib.layers.l2_regularizer(0.1),[x])
     reg = tf.nn.l2_loss(x)
+    print(sess.run(regu))
     print(sess.run(reg))
     print(x.eval())
+
+def test_reshape():
+  a = tf.Variable(np.arange(10,20).reshape([2,5]))
+  with tf.Session() as sess:
+    tf.global_variables_initializer().run()
+    print(a.eval())
+
+def test_numpy():
+  a = [[1,2,3],[1,2],[1]]
+  b = np.array(a)
+  print(b[1])
+  m = np.arange(0,24).reshape([2,3,4])
+  print(m.T.shape)
+
+def test_tensordot():
+  a = tf.constant(np.arange(24).reshape([3,4,2]))
+  b = tf.constant(np.arange(12).reshape([4,3]))
+  with tf.Session() as sess:
+    c = tf.tensordot(b,a,[[1],[0]])
+    d = tf.tile(a,[])
+    print(d.eval().shape)
 
 if __name__ == '__main__':
   # mul_test()
@@ -316,15 +338,18 @@ if __name__ == '__main__':
   # test_multiply()
   # test_tensorArray()
   # test_split()
-  #test_gather()
+  test_gather()
   # test_test()
   # test_sparse()
   # test_scatter_mul()
-  test_grad()
+  #test_grad()
   #test_regularize()
   #test_lstm()
   #test_max()
   #test_where()
-  #test_regu()
+  # test_regu()
+  # test_reshape()
+  # test_numpy()
+  # test_tensordot()
 
 
